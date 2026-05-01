@@ -1,0 +1,37 @@
+{
+  "name": "card-game-demo",
+  "version": "1.0.0",
+  "description": "卡牌对决Demo游戏",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable",
+    "pack": "electron-builder --dir"
+  },
+  "keywords": ["card-game"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.cardgame.demo",
+    "productName": "卡牌对决Demo",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "*.html",
+      "*.css",
+      "*.js"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "icon.ico"
+    },
+    "portable": {
+      "artifactName": "卡牌对决Demo.exe"
+    }
+  }
+}

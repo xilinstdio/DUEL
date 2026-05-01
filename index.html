@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>卡牌对决Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    <h1>卡牌对决 Demo</h1>
+
+    <svg id="drag-arrow-layer" class="drag-arrow-layer"></svg>
+
+    <div class="game-info">
+      <div class="info-item">游戏倍率: <span id="multiplier">1</span></div>
+      <div class="info-item">当前回合: <span id="turn">1</span></div>
+      <div class="info-item">牌库: <span id="deck-count">50</span> 张</div>
+      <div class="info-item">弃牌: <span id="discard-count">0</span> 张</div>
+      <div class="info-item" id="phase-info">掷骰阶段</div>
+    </div>
+
+    <div class="main-layout">
+      <div class="game-area">
+        <div class="players">
+          <div class="player-row">
+            <div class="player" id="player1">
+              <h2>玩家1</h2>
+              <div class="health-bar">
+                <div class="health-fill" id="p1-health-fill"></div>
+                <span class="health-text" id="p1-health">10</span>
+                <div class="damage-float" id="p1-damage-float"></div>
+              </div>
+              <div class="status" id="p1-status"></div>
+              <div class="character-slot" id="p1-character"></div>
+              <div class="hand-label">手牌</div>
+              <div class="hand" id="p1-hand"></div>
+            </div>
+
+            <div class="player" id="player2">
+              <h2>玩家2</h2>
+              <div class="health-bar">
+                <div class="health-fill" id="p2-health-fill"></div>
+                <span class="health-text" id="p2-health">10</span>
+                <div class="damage-float" id="p2-damage-float"></div>
+              </div>
+              <div class="status" id="p2-status"></div>
+              <div class="character-slot" id="p2-character"></div>
+              <div class="hand-label">手牌</div>
+              <div class="hand" id="p2-hand"></div>
+            </div>
+          </div>
+
+          <div class="player-row">
+            <div class="player" id="player3">
+              <h2>玩家3</h2>
+              <div class="health-bar">
+                <div class="health-fill" id="p3-health-fill"></div>
+                <span class="health-text" id="p3-health">10</span>
+                <div class="damage-float" id="p3-damage-float"></div>
+              </div>
+              <div class="status" id="p3-status"></div>
+              <div class="character-slot" id="p3-character"></div>
+              <div class="hand-label">手牌</div>
+              <div class="hand" id="p3-hand"></div>
+            </div>
+
+            <div class="player" id="player4">
+              <h2>玩家4</h2>
+              <div class="health-bar">
+                <div class="health-fill" id="p4-health-fill"></div>
+                <span class="health-text" id="p4-health">10</span>
+                <div class="damage-float" id="p4-damage-float"></div>
+              </div>
+              <div class="status" id="p4-status"></div>
+              <div class="character-slot" id="p4-character"></div>
+              <div class="hand-label">手牌</div>
+              <div class="hand" id="p4-hand"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="log" id="game-log">
+          <h3>游戏日志</h3>
+          <div id="log-content"></div>
+        </div>
+      </div>
+
+      <div class="card-editor" id="card-editor">
+        <h3>卡牌编辑器</h3>
+        <div class="editor-card-select">
+          <label>选择卡牌:</label>
+          <select id="editor-card-select">
+            <option value="quantum">量子力学</option>
+            <option value="hall">霍尔元件</option>
+            <option value="combine">自由组合</option>
+            <option value="duel">决斗</option>
+            <option value="rage">发怒</option>
+            <option value="kill">杀</option>
+            <option value="peach_garden">桃园结义</option>
+            <option value="barbarian">南蛮入侵</option>
+            <option value="peach">桃</option>
+            <option value="dodge">闪</option>
+            <option value="draw_two">无中生有</option>
+            <option value="discard_other">过河拆桥</option>
+            <option value="steal">顺手牵羊</option>
+          </select>
+        </div>
+        <div class="editor-card-info" id="editor-card-info">
+          <div class="info-row">
+            <span class="label">类型:</span>
+            <span id="editor-type">spell</span>
+          </div>
+          <div class="info-row">
+            <span class="label">目标:</span>
+            <span id="editor-target">指定玩家</span>
+          </div>
+          <div class="info-row">
+            <span class="label">效果:</span>
+            <p id="editor-desc">50%概率目标血量变为0-10随机值</p>
+          </div>
+        </div>
+        <div class="editor-params" id="editor-params">
+          <h4>参数配置</h4>
+        </div>
+        <button id="editor-apply-btn" class="apply-btn">应用配置</button>
+        <div class="editor-log" id="editor-log">
+          <h4>效果预览</h4>
+          <div id="editor-log-content"></div>
+        </div>
+      </div>
+    </div>
+
+  <!-- 骰子弹窗 -->
+  <div class="modal" id="dice-modal">
+    <div class="modal-content">
+      <h3>🎲 掷骰子决定回合</h3>
+      <p>点击按钮掷骰，点数大者获得回合</p>
+      <div class="dice-container">
+        <div class="dice-box">
+          <div class="dice-label">玩家1</div>
+          <div class="dice">?</div>
+        </div>
+        <div class="dice-box">
+          <div class="dice-label">玩家2</div>
+          <div class="dice">?</div>
+        </div>
+      </div>
+      <div id="dice-result"></div>
+      <button id="roll-dice-btn" class="roll-dice-btn">🎲 掷骰子</button>
+    </div>
+  </div>
+
+  <!-- 闪避确认弹窗 -->
+  <div class="modal" id="dodge-modal">
+    <div class="modal-content">
+      <h3>是否使用【闪】？</h3>
+      <p id="dodge-target-name"></p>
+      <div class="dodge-buttons">
+        <button id="dodge-yes" class="dodge-btn yes">使用【闪】</button>
+        <button id="dodge-no" class="dodge-btn no">不使用</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 石头剪刀布弹窗 -->
+  <div class="modal" id="rps-modal">
+    <div class="modal-content">
+      <h3>石头✊ 剪刀✌️ 布✋</h3>
+      <p>选择你的出招</p>
+      <div class="rps-buttons">
+        <button data-choice="rock">✊ 石头</button>
+        <button data-choice="scissors">✌️ 剪刀</button>
+        <button data-choice="paper">✋ 布</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 游戏结束弹窗 -->
+  <div class="modal" id="game-over-modal">
+    <div class="modal-content">
+      <h2>🎉 游戏结束 🎉</h2>
+      <p id="winner-text"></p>
+      <button id="restart-btn" class="restart-btn">再来一局</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+  <script src="effects.js"></script>
+  <script src="ui.js"></script>
+</body>
+</html>
